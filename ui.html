@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function run() {
+            var input = document.getElementById('input').value;
+            console.log(input);
+            fetch(`http://localhost:3000?string=${input}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('output').innerHTML = data.result;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <input type="text" id="input" style="width: 1000px; height: 50px; margin: 50px;">
+        <br>
+        <button onclick="run()">click</button>
+        <br>
+        <h3 id="output"></h3>
+    </div>
+</body>
+
+</html>
+
