@@ -2,8 +2,9 @@ import spacy
 from transformers import pipeline
 from googletrans import Translator
 translator = Translator()
+import nltk
 
-# ... (Loading of datasets, models, dictionary)
+
 
 hinglish_normalization_map = {
     "bahut": "bahut",
@@ -30,6 +31,7 @@ hinglish_dict = {
     "bahut": "very",
     "hai": "is",
     "nahi": "no",
+    "sona":["sleep","gold"],
 }
 
 ner_exceptions=["hai"]
@@ -50,31 +52,67 @@ def translate_word(word):
     else:
         return translator.translate(word, dest='en').text;
 
-# def disambiguate(word, context):
-#     pos_tag = spacy_model(word)[0].tag_ 
-#     return best_translation
+def disambiguate(word, context, translations):
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    context = [lemmatizer.lemmatize(w) for w in context]  
+
+    from nltk.corpus import wordnet as wn
+    best_translation = None
+    max_similarity = 0
+
+    for translation in translations:
+        translation_synsets = wn.synsets(translation)
+        for context_word in context:
+            context_synsets = wn.synsets(context_word)
+
+            for translation_synset in translation_synsets:
+                for context_synset in context_synsets:                     
+                    similarity = translation_synset.path_similarity(context_synset) 
+
+                    if similarity and similarity > max_similarity:  
+                        max_similarity = similarity
+                        best_translation = translation 
+
+    return best_translation if best_translation else translations[0] 
 
 def process_sentence(sentence):
     tokens = preprocess(sentence)
-    ner_model = spacy.load('en_core_web_sm')  # Load your NER model
+    ner_model = spacy.load('en_core_web_sm')  
     translated_tokens = []
 
     for token in tokens:
         if (ner_model(token).ents) and (token not in ner_exceptions): 
-            print("entity is ",token)  
             translated_tokens.append(token)
         else:
             translation = translate_word(token)
-            best_translation = translation
-            # best_translation = disambiguate(token, tokens) 
+            if isinstance(translation, str):
+                best_translation = translation
+            else:
+                best_translation = token
+
             translated_tokens.append(best_translation) 
-            print(translated_tokens)
+    
 
-    return " ".join((translated_tokens))
+    new_translated_tokens = []
+    for token in translated_tokens:
+        if (not ner_model(token).ents) or (token in ner_exceptions): 
+            translation = translate_word(token)
+            if not isinstance(translation, str):
+                best_translation = disambiguate(token, translated_tokens, translation)
+            else:
+                best_translation = token
 
-# Example usage
-hinglish_sentence = "Ye video bahut funny hai "
+            new_translated_tokens.append(best_translation) 
+
+
+
+    final_translation=" ".join((new_translated_tokens))
+    return final_translation
+
+
+hinglish_sentence = "Ye video bahut funny hai but mujhe sona hai because I am tired and want to rest ."
 translated_sentence = process_sentence(hinglish_sentence)
 print(translated_sentence) 
 
 
+## Fina 2 steps are fixing grammer and using punctuations and conjunctions to make it more reliable.
