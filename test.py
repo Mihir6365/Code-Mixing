@@ -1,34 +1,22 @@
-import nltk
-nltk.download('wordnet')
+import re
 
+def is_conjunction_part_of_word(text, conjunction):
+  return text.find(conjunction) > 0 and text.rfind(conjunction) < len(text) - 1
 
-def disambiguate(word, context, translations):
-    lemmatizer = nltk.stem.WordNetLemmatizer()
-    context = [lemmatizer.lemmatize(w) for w in context]  
+def process_sentence_fragments(text):
+    return text.upper() 
 
-    from nltk.corpus import wordnet as wn
-    best_translation = None
-    max_similarity = 0
+def split_and_process_sentence(sentence):
+  pattern = r"(\s*(?:and|but|or|for|nor|so|yet)\s*)|(\s*[:,\.!;?]|\s*)"
+  fragments = re.split(pattern, sentence)
+  fragments = [f for f in fragments if f] 
 
-    for translation in translations:
-        translation_synsets = wn.synsets(translation)
-        for context_word in context:
-            context_synsets = wn.synsets(context_word)
+  processed_fragments = []
+  for fragment in fragments:
+      processed_fragments.append(process_sentence_fragments(fragment))
 
-            for translation_synset in translation_synsets:
-                for context_synset in context_synsets:                     
-                    similarity = translation_synset.path_similarity(context_synset) 
+  return "".join(processed_fragments)
 
-                    if similarity and similarity > max_similarity:  
-                        max_similarity = similarity
-                        best_translation = translation 
-
-    return best_translation if best_translation else translations[0] 
-
-
-word = "sona"
-context = ["tired", "expensive", "metal","mineral"]
-translations = ["gold", "sleep"]
-
-disambiguated_word = disambiguate(word, context, translations)
-print(disambiguated_word)  
+sentence = "This is a test sentence and it has some punctuation! Let's split it."
+result = split_and_process_sentence(sentence)
+print(result) 

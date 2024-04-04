@@ -4,7 +4,10 @@ from googletrans import Translator
 translator = Translator()
 import nltk
 
-
+punc=['.',',','?','!',';',':']
+sentence="this is a test, and I hope it words. this is another test."
+temp=''
+final=''
 
 hinglish_normalization_map = {
     "bahut": "bahut",
@@ -110,9 +113,20 @@ def process_sentence(sentence):
     return final_translation
 
 
-hinglish_sentence = "Ye video bahut funny hai but mujhe sona hai because I am tired and want to rest ."
-translated_sentence = process_sentence(hinglish_sentence)
-print(translated_sentence) 
+hinglish_sentence = "Ye video bahut funny hai, but mujhe sona hai because I am tired and want to rest."
 
 
-## Fina 2 steps are fixing grammer and using punctuations and conjunctions to make it more reliable.
+for char in hinglish_sentence:
+    if char in punc:
+        final+=process_sentence(temp);
+        temp='';
+        final+=char;
+        final+=' ';
+    else:
+        temp=temp+char;
+
+print(final) 
+
+
+
+#fixing grammar and also using conjunction last part
