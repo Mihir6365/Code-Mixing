@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function run() {
+            var input = document.getElementById('input').value;
+            console.log(input);
+            fetch(`http://localhost:3000?string=${input}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    let outputText = "output: <br>";
+                    for (let answer of data) {
+                        console.log(answer.Sentence);
+                        outputText += `<p style="padding: 10px; text-align: left;"> ${answer.Sentence} </p>`;
+                    }
+                    document.getElementById('output').innerHTML = outputText;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <input type="text" id="input" style="width: 1000px; height: 50px; margin: 50px;">
+        <br>
+        <button onclick="run()">Fix</button>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h3 id="output" style="width: 1000; margin: 0 calc(50% - 500px);"></h3>
+    </div>
+</body>
+
+</html>
