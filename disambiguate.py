@@ -27,7 +27,7 @@ def disambiguate(word, context, translations):
 
 
 word = "sona"
-context = ["tired", "expensive", "metal","mineral"]
+context = ["expensive", "rich",]
 translations = ["gold", "sleep"]
 
 disambiguated_word = disambiguate(word, context, translations)

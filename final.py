@@ -5,7 +5,6 @@ translator = Translator()
 import nltk
 
 punc=['.',',','?','!',';',':']
-sentence="this is a test, and I hope it words. this is another test."
 temp=''
 final=''
 
@@ -36,6 +35,10 @@ hinglish_dict = {
     "nahi": "no",
     "sona":["sleep","gold"],
 }
+
+
+
+
 
 ner_exceptions=["hai"]
 def preprocess(text):
@@ -111,6 +114,17 @@ def process_sentence(sentence):
 
     final_translation=" ".join((new_translated_tokens))
     return final_translation
+
+def fixgrammar(text):
+    corrector = pipeline('text-generation', model='grammar_fixer') 
+    nltk.download('punkt')
+    sentences = nltk.sent_tokenize(text) 
+    corrected_sentences = []
+    for sentence in sentences:
+        result = corrector(sentence, max_length=128)  # Adjust max_length if needed
+        corrected_sentences.append(result[0]['generated_text'])
+
+    return " ".join(corrected_sentences)
 
 
 hinglish_sentence = "Ye video bahut funny hai, but mujhe sona hai because I am tired and want to rest."
